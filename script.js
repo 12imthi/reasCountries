@@ -32,7 +32,7 @@ pro.then(data => {
                                 <strong>Latlng:</strong> ${country.latlng.join(', ')}<br>
                                 <strong>Country Code:</strong> ${country.cca3}
                             </p>
-                             <button class="btn btn-primary" onclick="getWeather('${country.latlng[0]}', '${country.latlng[1]}')">Click for Weather</button>
+                             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="getWeather('${country.latlng[0]}', '${country.latlng[1]}' , '${country.name.common}')">Click for Weather</button>
                         </div>
                     </div>
                 `;
@@ -48,9 +48,37 @@ pro.then(data => {
     console.log('error',error);
 })
 
-function getWeather(lat, lng) {
-    alert(`Fetching weather for coordinates: ${lat}, ${lng}`);
-    
-    
+  // Fetch and display weather data
+  function getWeather(lat, lng, location) {
+    // alert(`Fetching weather for coordinates: ${lat}, ${lng}`);
+    const apiKey = 'af9f8f42e292503ee3fb7319276af05f'; 
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${apiKey}&units=metric`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Weather data:', data);
+            displayWeather(data, location);
+        })
+        .catch(error => {
+            console.error('There was a problem fetching weather data:', error);
+        });
 }
 
+// Display weather data
+function displayWeather(data, location) {
+    const weatherInfo = `
+        <h4>Weather in ${location}</h4>
+        <p><strong>Temperature:</strong> ${data.main.temp} °C</p>
+        <p><strong>Weather:</strong> ${data.weather[0].description}</p>
+        <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+        <p><strong>Wind Speed:</strong> ${data.wind.speed} m/s</p>
+    `;
+    document.getElementById('weather-info').innerHTML = weatherInfo;
+    
+}
